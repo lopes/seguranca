@@ -37,20 +37,28 @@ Referências
 [ 3] Open Web Application Security Project (OWASP).  OWASP Proactive Controls.
      Disponível em: <https://www.owasp.org/index.php/OWASP_Proactive_Controls>.
      Acesso em 13/07/2016.
+[ 4] Open Web Application Security Project (OWASP).  SQL Injection Prevention
+     Cheat Sheet.  Disponível em: <https://www.owasp.org/index.php/
+     SQL_Injection_Prevention_Cheat_Sheet>.  Acesso em 15/07/2016.
+[ 5] Open Web Application Security Project (OWASP).  Session Management Cheat
+     Sheet.  Disponível em: <https://www.owasp.org/index.php/Session_
+     Management_Cheat_Sheet>.  Acesso em: 15/07/2016.
 
 """
+
 
 # Cuidado ao importar módulos!  Tente usar apenas a biblioteca
 # padrão da linguagem e módulos bem conhecidos, obtidos de
 # fontes confiáveis.
 from hashlib import md5  # usado apenas para fins didáticos
 from base64 import b64encode, b64decode
+from binascii import hexlify, unhexlify
 
 from Crypto import Random
 from Crypto.Cipher import AES
 from Crypto.Hash import HMAC, SHA256
-
 from otpauth import OtpAuth
+from logging import basicConfig, warning
 
 
 class Capitulo0(object):
@@ -120,7 +128,7 @@ class Capitulo1(object):
             de dicionário.
             Ex.: 6b3a55e0261b030$143f805a24924dOc1c44524821305f31d927743b8a10f
         :param key: a chave usada para criptografar o hash.
-            Ex.: a7998f247bd965694ff227fa325c81&69a07471a8B6808d3e002a486c4e659
+            Ex.: a7998f247bd965694ff227fa325c81&69a07471a8B6808d3e002a486c4e65
 
         """
         # Crypto.Hash.HMAC exige o uso de bytes em vez de
@@ -140,13 +148,16 @@ class Capitulo2(object):
     2. Prefira usar sistemas de autenticação existentes --e.g., LDAP, Active
         Directory e OAuth.
     3. Mensagens de erro de autenticação devem informar o problema sem expor
-        o usuário --e.g.,
+        dados sensíveis, como nomes de usuário e versões de software.
     4. Sempre que possível, implemente o duplo fator de autenticação --RFCs
         4226 ou 6238.
 
     """
     def second_factor(self, method, key):
         """
+        Calcula e retorna one-time passwords para uso como segundo fator de
+        autenticação baseados em tempo ou hashes criptografados.
+
         :param method: string - pode ser 'time' ou 'hmac'.
         :param key: string - a chave privada usada para gerar os códigos.
 
@@ -164,26 +175,92 @@ class Capitulo3(object):
     """
     Validação
 
-    Valide todos os dados de entrada adequadamente.
-    Caracteres de escape, como ' e " devem ser adequadamente tratados.
-    Preste atenção aos ranges nos campos da sua aplicação.
-    Em aplicações web, validações no lado cliente devem ser refeitas no servidor.
+    1. Valide todos os dados de entrada adequadamente.
+    2. Trate com atenção caracters especiais, como aspas simples e duplas.
+    3. Preste atenção aos _ranges_ nos campos da sua aplicação --e.g., um campo
+        para nome não deveria permitir o envio de 1024 caracteres.
+    4. Em aplicações web, validações no lado cliente devem ser refeitas no
+        servidor.
+    5. Parametrize consultas SQL, use um mapeamento objeto-relacional (ORM) ou
+        estude a utilização de stored procedures.
+    6. Considere como dados de entrada cabeçalhos HTTP, parâmetros GET/POST,
+       cookies e arquivos, por exemplo.
+    7. Atenção aos cookies: evite armazenar dados sensíveis neles, defina uma
+       data de expiração da sessão.
+
 
     """
-    pass
+    def hexencode(self, user_entry):
+        """
+        Codifica a entrada do usuário em hexadecimal, para armazenagem segura.
+
+        :param user_entry: string - a string informada pelo usuário.
+
+        Retorna uma string com a representação hexadecimal da entrada.
+
+        """
+        return hexlify(user_entry.encode()).decode()
+
+    def hexdecode(self, stored_data):
+        """
+        Decodifica um dado que foi armazenado de forma codificada.
+
+        :param stored_data: string - string na sua representação hexadecimal.
+
+        Retorna uma string com os dados decodificados.
+
+        """
+        return unhexlify(stored_data.encode()).decode()
+
 
 class Capitulo4(object):
     """
     Transferências
 
-    Em aplicações web, use HTTPS em vez do HTTP.
-    Prefira transferir arquivos via SSH.
+    1. Em aplicações web, use HTTPS em vez do HTTP.
+    2. Prefira transferir arquivos via Secure Shell (SSH); evite FTP ou SMB.
+    3. No servidor, desabilite versões inseguras de protocolos de criptografia
+        --e.g., SSLv2 e SSLv3.
+    4. Para compartilhamento de arquivos via rede evite
 
     """
     pass
 
 class Capitulo5(object):
-    pass
+    """
+    Logs
+
+    1. Defina informações importantes que precisam ser armazenadas para fins
+        de auditoria.
+    2. Considere usar bibliotecas específicas para a geração de logs.
+    3. Estruture os logs de acordo com algum padrão; evite criar novos --e.g.,
+        syslog-ng e ISO 8601 para datas.
+    4. Projete seu sistema de logs considerando que ele eventualmente será
+        exportado para um Security Information and Event Management (SIEM).
+    5. *NUNCA* exponha informações sensíveis em logs --e.g., senhas.
+    6. Lembre-se que haverá geração de logs em várias camadas; não reinvente a
+        roda --e.g., uma aplicação web poderia guardar somente o que o usuário
+        fez dentro do programa e quando; endereços IP e falhas de login
+        poderiam estar nos logs do servidor web ou do sistema operacional.
+    7. Mantenha os servidores atualizados de acordo com um serviço confiável e
+        único dentro do domínio, para manter o padrão --e.g., ntp.br.
+    8. Prefira armazenar datas de logs com o fuso GMT+0, ajustando o fuso
+        apenas na apresentação para o auditor.
+    9. Para facilitar futuras pesquisas, defina níveis de log padrões para sua
+        aplicação --e.g., debug, info, warning, error e critical.
+
+    """
+    def __init__(self):
+        basicConfig(format='%(asctime)s %(levelname)s: %(message)s')
+
+    def warning_log(self, message):
+        """
+        Cria um log de aviso.
+
+        :param message: string - a mensagem a ser "logada".
+
+        """
+        warning(message)
 
 class Capitulo6(object):
     pass
@@ -198,13 +275,13 @@ class Capitulo9(object):
     """
     Análise de Vulnerabilidade
 
-    Realize análises de vulnerabilidade periodicamente nas aplicações.
-    Adicione uma etapa de análise de vulnerabilidades ao processo de
-    desenvolvimento de software.
-    Publique aplicações apenas após tratar todas as vulnerabilidades listadas
-    nas análises.
-    Lembre-se que é mais fácil tratar vulnerabilidades em ambientes de
-    homologação do que produção.
+    1. Realize análises de vulnerabilidade periodicamente nas aplicações.
+    2. Adicione uma etapa de análise de vulnerabilidades ao processo de
+        desenvolvimento de software.
+    3. Publique aplicações apenas após tratar todas as vulnerabilidades
+        listadas nas análises.
+    4. Lembre-se que é mais fácil tratar vulnerabilidades em ambientes de
+        homologação do que produção.
 
     """
     pass
