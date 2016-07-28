@@ -1,2 +1,9 @@
+cffi==1.7.0
+cryptography==1.4
+idna==2.1
 otpauth==1.0.1
+pyasn1==0.1.9
+pycparser==2.14
 pycrypto==2.6.1
+pyOpenSSL==16.0.0
+six==1.10.0

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 O Tao do Software Seguro
-- --- -- -------- ------
+= === == ======== ======
 
 
 Visão Geral
@@ -59,11 +59,13 @@ from Crypto.Cipher import AES
 from Crypto.Hash import HMAC, SHA256
 from otpauth import OtpAuth
 from logging import basicConfig, warning
+from OpenSSL.crypto import load_pkcs12, dump_certificate, FILETYPE_TEXT
 
 
 class Capitulo0(object):
     """
-    Criptografia
+    CRIPTOGRAFIA
+    ------------
 
     0. *NUNCA* crie seu sistema criptográfico: use aqueles já existentes.
     1. Conheça os tipos mais comuns de criptografia --simétrica e assimétrica.
@@ -87,8 +89,9 @@ class Capitulo0(object):
         """
         Criptografa uma mensagem usando AES no modo CBC.
 
-        :param msg: string - mensagem em si.
-        :param key: string - chave para criptografar a mensagem.
+        PARÂMETROS
+        - msg (string): mensagem em si.
+        - key (string): chave para criptografar a mensagem.
 
         """
         iv = Random.new().read(AES.block_size)
@@ -99,8 +102,9 @@ class Capitulo0(object):
         """
         Decriptografa uma mensagem criptografada com aes_cbc_enc().
 
-        :param ciph: string - mensagem cifrada.
-        :param key: string - chave para decriptografar a cifra.
+        PARÂMETROS
+        - ciph (string): mensagem cifrada.
+        - key (string): chave para decriptografar a cifra.
 
         """
         ciph = b64decode(ciph)
@@ -110,7 +114,8 @@ class Capitulo0(object):
 
 class Capitulo1(object):
     """
-    Armazenamento de Senhas
+    ARMAZENAMENTO DE SENHAS
+    ------------- -- ------
 
     1. Não limite o conjunto de caracteres das senhas.
     2. Permita senhas realmente longas --e.g., 160 caracteres.
@@ -123,11 +128,14 @@ class Capitulo1(object):
     """
     def protected_password(self, password, salt, key):
         """
-        :param password: string - senha digitada pelo usuário.
-        :param salt: string - usada para "temperar" a senha, evitando ataques
+        Prepara uma senha para ser armazenada/verificada.
+
+        PARÂMETROS
+        - password (string): senha digitada pelo usuário.
+        - salt (string): usada para "temperar" a senha, evitando ataques
             de dicionário.
             Ex.: 6b3a55e0261b030$143f805a24924dOc1c44524821305f31d927743b8a10f
-        :param key: a chave usada para criptografar o hash.
+        - key (string): a chave usada para criptografar o hash.
             Ex.: a7998f247bd965694ff227fa325c81&69a07471a8B6808d3e002a486c4e65
 
         """
@@ -141,7 +149,8 @@ class Capitulo1(object):
 
 class Capitulo2(object):
     """
-    Autenticação
+    AUTENTICAÇÃO
+    ------------
 
     1. Sempre faça autenticação negativa: variáveis que permitirão a entrada
         devem ser inicializadas como False.
@@ -151,6 +160,12 @@ class Capitulo2(object):
         dados sensíveis, como nomes de usuário e versões de software.
     4. Sempre que possível, implemente o duplo fator de autenticação --RFCs
         4226 ou 6238.
+    5. Atenção ao usar certificados digitais para autenticação: um sistema
+        que use essa técnica deve abrir o certificado, baixar a CRL
+        relacionada, verificar se o certificado em questão está lá, verificar
+        a cadeia de emissão do certificado, obter o identificador do usuário
+        gravado no certificado, verificar se aquele identificador está
+        permitido a acessar o sistema e, só então, permitir o acesso.
 
     """
     def second_factor(self, method, key):
@@ -158,8 +173,9 @@ class Capitulo2(object):
         Calcula e retorna one-time passwords para uso como segundo fator de
         autenticação baseados em tempo ou hashes criptografados.
 
-        :param method: string - pode ser 'time' ou 'hmac'.
-        :param key: string - a chave privada usada para gerar os códigos.
+        PARÂMETROS
+        - method (string): pode ser 'time' ou 'hmac'.
+        - key (string): a chave privada usada para gerar os códigos.
 
         """
         auth = OtpAuth(key)
@@ -173,7 +189,8 @@ class Capitulo2(object):
 
 class Capitulo3(object):
     """
-    Validação
+    VALIDAÇÃO
+    ---------
 
     1. Valide todos os dados de entrada adequadamente.
     2. Trate com atenção caracters especiais, como aspas simples e duplas.
@@ -194,7 +211,8 @@ class Capitulo3(object):
         """
         Codifica a entrada do usuário em hexadecimal, para armazenagem segura.
 
-        :param user_entry: string - a string informada pelo usuário.
+        PARÂMETROS
+        - user_entry (string): a string informada pelo usuário.
 
         Retorna uma string com a representação hexadecimal da entrada.
 
@@ -205,7 +223,8 @@ class Capitulo3(object):
         """
         Decodifica um dado que foi armazenado de forma codificada.
 
-        :param stored_data: string - string na sua representação hexadecimal.
+        PARÂMETROS
+        - stored_data (string): string na sua representação hexadecimal.
 
         Retorna uma string com os dados decodificados.
 
@@ -215,20 +234,24 @@ class Capitulo3(object):
 
 class Capitulo4(object):
     """
-    Transferências
+    TRANSFERÊNCIAS
+    --------------
 
     1. Em aplicações web, use HTTPS em vez do HTTP.
     2. Prefira transferir arquivos via Secure Shell (SSH); evite FTP ou SMB.
     3. No servidor, desabilite versões inseguras de protocolos de criptografia
         --e.g., SSLv2 e SSLv3.
-    4. Para compartilhamento de arquivos via rede evite
+    4. Crie senhas fortes para os serviços e evite compartilhá-las.
+    5. Considere criptografar todas as conexões que forem feitas pela
+        aplicação --e.g., LDAP over TLS/SSL (LDAPS) e SNMPv3.
 
     """
     pass
 
 class Capitulo5(object):
     """
-    Logs
+    LOGS
+    ----
 
     1. Defina informações importantes que precisam ser armazenadas para fins
         de auditoria.
@@ -257,23 +280,88 @@ class Capitulo5(object):
         """
         Cria um log de aviso.
 
-        :param message: string - a mensagem a ser "logada".
+        PARÂMETROS
+        - message (string): a mensagem a ser "logada".
 
         """
         warning(message)
 
+    def log_size(self, epd, size):
+        """
+        Calcula o tamanho médio para armazenagem dos logs de uma aplicação.
+
+        PARÂMETROS
+        - epd (integer): média de eventos diários.
+        - size (integer): tamanho médio (bytes) do log de cada evento --1 (um)
+            caractere == 1 byte.
+
+        """
+        # 30 dias no mês + 10% do tamanho especificado; resultado em GB
+        size_in_1_month = epd * 30 * (size + (10 * size / 100)) * 10 ** -9
+
+        return 'Tamanho em 1 mês..: {0:6.2f} GB\n'\
+            'Tamanho em 6 meses: {1:6.2f} GB\n'\
+            'Tamanho em 1 ano..: {2:6.2f} GB\n'\
+            'Tamanho em 1,5 ano: {3:6.2f} GB\n'\
+            'Tamanho em 2 anos.: {4:6.2f} GB\n'\
+            'Tamanho em 5 anos.: {5:6.2f} GB'.format(size_in_1_month,
+            size_in_1_month*6, size_in_1_month*12, size_in_1_month*18,
+            size_in_1_month*24, size_in_1_month*60)
+
 class Capitulo6(object):
-    pass
+    """
+    CERTIFICADOS DIGITAIS
+    ------------ --------
+
+    1. Ao usar certificados em software, tenha atenção a quem tem acesso ao
+        servidor onde ele está instalado.
+    2. De forma segura, remova do servidor certificados vencidos revogados ou
+        inutilizados por quaisquer outros motivos.
+    3. Mantenha algum tipo de controle de validade de certificados digitais,
+        considerando que leva-se um tempo entre o pedido de renovação e a
+        emissão do novo certificado --dependendo da morosidade do processo
+        de aquisição do certificado, da criticidade e período de validade
+        dele, considere renovar com 6 meses de antecedência.
+    4. Evite usar um certificado para mais de uma finalidade --à exceção de
+        certificados do tipo wildcard.
+    5. Certificados wildcard devem receber atenção especial: o ideal é que
+        seu 'instalador' seja restrito a poucas pessoas e servidores; o uso
+        ideal dele seria em um proxy reverso, fechando conexões seguras com
+        clientes e esse proxy fechando conexões seguras com os servidores
+        usando outros certificados.
+
+    """
+    def read_p12(self, path, password):
+        p12 = load_pkcs12(open(path, 'rb').read(), password)
+        return dump_certificate(FILETYPE_TEXT, p12.get_certificate()).decode()
 
 class Capitulo7(object):
+    """
+    Segregação de funções(?)
+    """
     pass
 
 class Capitulo8(object):
+    """
+    NUVEM
+    -----
+
+    0. Entenda que 'nuvem', no fundo, significa um servidor alocado em algum
+        local remoto.
+    1. Ao usar serviços 'na nuvem', procure saber mais sobre o provedor daquele
+        serviço: casos de sucesso, clientes, garantias de segurança, backup,
+        recuperação de desastres etc.
+    2. Descubra onde, de fato, os dados serão armazenados ou processados; não
+        se esqueça que cada país possui a sua legislação e ela pode afetar
+        o seu serviço.
+
+    """
     pass
 
 class Capitulo9(object):
     """
-    Análise de Vulnerabilidade
+    TESTES E ANÁLISES DE VULNERABILIDADE
+    ------ - -------- -- ---------------
 
     1. Realize análises de vulnerabilidade periodicamente nas aplicações.
     2. Adicione uma etapa de análise de vulnerabilidades ao processo de
@@ -282,6 +370,9 @@ class Capitulo9(object):
         listadas nas análises.
     4. Lembre-se que é mais fácil tratar vulnerabilidades em ambientes de
         homologação do que produção.
+    5. Separe fisica e logicamente os ambientes de homologação e produção.
+    6. Crie ambientes de homologação o mais parecidos possível dos seus
+        pares de produção.
 
     """
     pass
