@@ -95,7 +95,7 @@ class Capitulo0(object):
         """
         self.pad = lambda s: s + (AES.block_size - len(s) % AES.block_size) * \
             chr(AES.block_size - len(s) % AES.block_size)
-        self.unpad = lambda s: s[:-ord(s[len(s) - 1:])]
+        self.unpad = lambda s: s[:-ord(s[-1:])]
 
     def aes_cbc_enc(self, msg, key):
         """
