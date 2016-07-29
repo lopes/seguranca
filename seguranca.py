@@ -43,6 +43,8 @@ Referências
 [ 5] Open Web Application Security Project (OWASP).  Session Management Cheat
      Sheet.  Disponível em: <https://www.owasp.org/index.php/Session_
      Management_Cheat_Sheet>.  Acesso em: 15/07/2016.
+[ 6] Open Web Application Project (OWASP).  Secure Coding Principles.
+     Disponível em: <https://www.owasp.org/index.php/Secure_Coding_Principles>.
 
 """
 
@@ -60,6 +62,8 @@ from Crypto.Hash import HMAC, SHA256
 from otpauth import OtpAuth
 from logging import basicConfig, warning
 from OpenSSL.crypto import load_pkcs12, dump_certificate, FILETYPE_TEXT
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
 
 
 class Capitulo0(object):
@@ -81,6 +85,14 @@ class Capitulo0(object):
 
     """
     def __init__(self):
+        """
+        Cifras de bloco precisam processar arquivos cujos tamanhos sejam
+        múltiplos do tamanho de bloco utilizado.
+
+        A função pad adiciona dados ao final da mensagem, para garantir isso.
+        A função unpad remove os dados adicionados.
+
+        """
         self.pad = lambda s: s + (AES.block_size - len(s) % AES.block_size) * \
             chr(AES.block_size - len(s) % AES.block_size)
         self.unpad = lambda s: s[:-ord(s[len(s) - 1:])]
@@ -337,7 +349,20 @@ class Capitulo6(object):
 
 class Capitulo7(object):
     """
-    Segregação de funções(?)
+    SEGREGAÇÃO DE FUNÇÕES
+    ---------- -- -------
+
+    1. Crie contas administrativas separadas das de usuários comuns.
+    2. Restrinja o acesso de contas administrativas em redes ou endereços
+        IP específicos.
+    3. Aumente o nível de segurança para contas administrativas --e.g., senhas
+        realmente longas (> 40 caracteres), duplo fator de autenticação e,
+        possivelmente, com certificado digital (token ou smartcard).
+    4. Mantenha o princípio do menor privilégio, i.e., o usuário deve possuir
+        permissões mínimas para realizar seu trabalho e a aplicação deve
+        garantir que isso possa ser configurado.
+    5.
+
     """
     pass
 
@@ -354,9 +379,44 @@ class Capitulo8(object):
     2. Descubra onde, de fato, os dados serão armazenados ou processados; não
         se esqueça que cada país possui a sua legislação e ela pode afetar
         o seu serviço.
+    3. Leia e entenda os termos de serviço do provedor; atenção especial à
+        cláusulas de confidencialidade das informações que serão armazenadas/
+        processadas e ao que acontecerá com elas em caso de cancelamento do
+        serviço --lembre-se que muitas empresas poderão nunca deletar
+        realmente tais informações e outras poderão usá-las ou vendê-las em
+        parte ou na totalidade.
+    4. Preveja um cenário de migração do serviço para outro provedor ou até
+        para servidores internos; procure saber como o provedor a ser
+        contratado trata essa possibilidade.
+    5. Avalie os riscos de expor as informações na nuvem; essa avaliação deve
+        levar em consideração a classificação das informações que serão
+        enviadas para o provedor contratado.
 
     """
-    pass
+    def upload_to_gdrive(self, path):
+        """
+        Este método faz o upload de um arquivo para o Google Drive.  Para que
+        funcione, siga os passos a seguir:
+
+        a. Entre no Google Developers Console
+            <https://console.developers.google.com>, com a sua conta no Google,
+            crie um novo projeto e habilite o Google Drive.
+        b. Após configurar o projeto e tê-lo criado, entre em 'Credentials',
+            selecione o projeto recém criado, e em 'Download JSON'.
+        c. Renomeie o arquivo baixado para 'client_secrets.json' e coloque-o
+            no mesmo diretório deste script.
+        d. Ao ser executado, este script usará os parâmetros definidos no
+            arquivo JSON para autenticar essa aplicação; em seguida, será
+            aberto um navegador, para que o usuário acesse sua conta no Google
+            e dê permissões de acesso a esta aplicação.
+
+        PARÂMETROS
+        - path (string): caminho do arquivo a ser 'subido' para o Google Drive.
+
+        """
+        f = GoogleDrive(GoogleAuth()).CreateFile()
+        f.SetContentFile(path)
+        f.Upload()
 
 class Capitulo9(object):
     """
