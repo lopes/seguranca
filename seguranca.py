@@ -24,6 +24,10 @@ class Criptografia(object):
         A função pad adiciona dados ao final da mensagem, para garantir isso.
         A função unpad remove os dados adicionados.
 
+        NOTA
+        As funções de padding, são baseadas no padrão PKCS7 e usadas junto com
+        o CBC.  Portanto, estão vulneráveis ao padding oracle attack.
+
         """
         self.pad = lambda s: s + (AES.block_size - len(s) % AES.block_size) * \
             chr(AES.block_size - len(s) % AES.block_size)
