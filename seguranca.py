@@ -2,6 +2,7 @@
 # padrão da linguagem e módulos bem conhecidos, obtidos de
 # fontes confiáveis.
 from hashlib import md5  # usado apenas para fins didáticos
+from hashlib import pbkdf2_hmac
 from base64 import b64encode, b64decode
 from binascii import hexlify, unhexlify
 
@@ -62,9 +63,10 @@ class Criptografia(object):
 
 
 class Senhas(object):
-    def protege_senha(self, senha, sal, chave):
+    def protege_senha_hmac_sha256(self, senha, sal, chave):
         """
-        Prepara uma senha para ser armazenada/verificada.
+        Protege a senha usando HMAC + SHA-256 + salt, como indicado pelo OWASP
+        [1].
 
         ARGS:
         - senha (string): senha digitada pelo usuário.
@@ -80,6 +82,20 @@ class Senhas(object):
         senha = senha.encode()
         chave = chave.encode()
         return sal + HMAC.new(sal.encode() + chave, senha, SHA256).hexdigest()
+
+    def protege_senha_pbkdf2(self, senha, sal, iter):
+        """
+        Protege a senha usando o PBKDF2.
+
+        ARGS:
+        - senha (string): senha digitada pelo usuário.
+        - sal (string): usada para "temperar a senha".
+        - iter (integer): quantidade de iterações --o manual
+            (hashlib.pbkdf2()), de 2013, recomenda, no mínimo, 100000.
+
+        """
+        return hexlify(pbkdf2_hmac('sha256', senha.encode('utf8'),
+            sal.encode('utf8'), iter)).decode('utf8')
 
 
 class Autenticacao(object):

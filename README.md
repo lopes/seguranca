@@ -1,5 +1,5 @@
 # O Tao do Desenvolvimento Seguro
-Este guia apresenta práticas de desenvolvimento seguro.  Cada tópico apresenta boas práticas de segurança pertinentes àquele assunto.  Além disso, para cada tópico há uma classe implementada no arquivo `seguranca.py`, com exemplos práticos.  O mais interessante a se notar é que, normalmente, é muito fácil implementar as boas práticas de segurança no código, o que deve servir como motivador para sua adoção.
+Este guia apresenta práticas de desenvolvimento seguro.  Cada tópico possui boas práticas de segurança pertinentes àquele assunto.  Além disso, para cada tópico há uma classe implementada no arquivo `seguranca.py`, com exemplos práticos.  O mais interessante a se notar é que, normalmente, é muito fácil implementar as boas práticas de segurança no código, o que deve servir como motivador para sua adoção.
 
 ### Dependências
 Pacotes no Ubuntu --os dois últimos são requisitos do pyopenssl: `python3`, `python-dev` e `libpq-dev`.
@@ -11,6 +11,7 @@ Além deles, o arquivo `requirements.txt` tem a lista completa de dependências 
 ```
 AD          Active Directory
 AES         Advanced Encryption Standard
+API         Application Programming Interface
 CBC         Cipher Block Chaining
 CRL         Certificate Revocation List --o mesmo que LCR
 ECB         Electronic Codebook
@@ -75,7 +76,7 @@ Exemplos deste tópico são implementados na classe `Senhas`.  Pode ser usada da
 ```python
 >>> from seguranca import Senhas
 >>> s = Senhas()
->>> s.protege_senha('minha senha fort3!', '0$1I43f8', '81&69Ta0')
+>>> s.protege_senha_hmac_sha256('minha senha fort3!', '0$1I43f8', '81&69Ta0')
 '0$1I43f8ee6bf9ca692a62390122001aea0613ae54107b645ecaef5405d7a840d1fb4445'
 ```
 
@@ -131,15 +132,17 @@ Exemplos deste tópico são implementados na classe `Senhas`.  Pode ser usada da
 2. Restrinja o acesso de contas administrativas em redes ou endereços IP específicos.
 3. Aumente o nível de segurança para contas administrativas --e.g., senhas realmente longas (> 40 caracteres), duplo fator de autenticação e, possivelmente, com certificado digital (token ou smart card).
 4. Mantenha o princípio do menor privilégio, i.e., o usuário deve possuir permissões mínimas para realizar seu trabalho e a aplicação deve garantir que isso possa ser configurado.
+5. Crie usuários específicos para executar tarefas da aplicação --e.g., banco de dados e sistema operacional.
 
 
 ## 8. Nuvem
 0. Entenda que *nuvem*, no fundo, significa um servidor alocado em algum local remoto.
-1. Ao usar serviços 'na nuvem', procure saber mais sobre o provedor daquele serviço: casos de sucesso, clientes, garantias de segurança, backup, recuperação de desastres etc.
+1. Ao usar serviços 'na nuvem', procure saber mais sobre o seu provedor: casos de sucesso, clientes, garantias de segurança, backup, recuperação de desastres etc.
 2. Descubra onde, de fato, os dados serão armazenados ou processados; não se esqueça que cada país possui a sua legislação e ela pode afetar o seu serviço.
 3. Leia e entenda os termos de serviço do provedor; atenção especial à cláusulas de confidencialidade das informações que serão armazenadas/processadas e ao que acontecerá com elas em caso de cancelamento do serviço --lembre-se que muitas empresas poderão nunca deletar realmente tais informações e outras poderão usá-las ou vendê-las em parte ou na totalidade.
 4. Preveja um cenário de migração do serviço para outro provedor ou até para servidores internos; procure saber como o provedor a ser contratado trata essa possibilidade.
 5. Avalie os riscos de expor as informações na nuvem; essa avaliação deve levar em consideração a classificação das informações que serão enviadas para o provedor contratado.
+6. Considere fortemente as práticas do item 4, Transferências, ao trafegar dados locais para a nuvem e vice-versa.
 
 
 ## 9. Testes e Análises de Vulnerabilidade
@@ -151,6 +154,16 @@ Exemplos deste tópico são implementados na classe `Senhas`.  Pode ser usada da
 6. Crie ambientes de homologação o mais parecidos possível dos seus pares de produção.
 
 
+## 10. Outros
+1. Garanta que o sistema esteja alinhado com a legislação vigente do local onde for usado --e.g., [Marco Civil da Internet](https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2014/lei/l12965.htm).
+2. Crie um processo formal para implantação de sistemas, que deverá garantir, entre outras coisas, que apenas os arquivos essenciais sejam colocados em produção --e.g., estruturas de controle de versão (e.g., diretórios .git) deveriam ser apagados.
+3. Mantenha uma rotina de atualização do software e suas dependências, como APIs e sistemas operacionais.
+4. Mantenha atualizada a documentação, seja ela qual for, da aplicação, pois em caso de problemas, ela será uma das primeiras fontes de consulta.
+5. Documente todas as mudanças no software, preferencialmente usando um sistema de controle de versões de código.
+6. Mudanças na infraestrutura deveriam ser documentadas, para facilitar o rastreio de problemas --e.g., atualização do servidor e entrada em produção de uma nova versão de determinado serviço.
+
+
+
 ## Referências
 1. Open Web Application Security Project (OWASP).  Password Storage Cheat Sheet.  Disponível em: [https://www.owasp.org/index.php/Password_Storage_Cheat_Sheet](https://www.owasp.org/index.php/Password_Storage_Cheat_Sheet).
 2. National Institute of Standards and Technology (NIST).  Recommendation for Block Cipher Modes of Operation.  NIST Special Publication 800-38A.  2001.  Disponível em: [http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf](http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf).
@@ -158,6 +171,7 @@ Exemplos deste tópico são implementados na classe `Senhas`.  Pode ser usada da
 4. Open Web Application Security Project (OWASP).  SQL Injection Prevention Cheat Sheet.  Disponível em: [https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet](https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet).
 5. Open Web Application Security Project (OWASP).  Session Management Cheat Sheet.  Disponível em: [https://www.owasp.org/index.php/Session_Management_Cheat_Sheet](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet).
 6. Open Web Application Project (OWASP).  Secure Coding Principles.  Disponível em: [https://www.owasp.org/index.php/Secure_Coding_Principles](https://www.owasp.org/index.php/Secure_Coding_Principles).
+7. International Information System Security Certification Consortium (ISC)².  The Ten Best Practices for Secure Software Development.
 
 
 ## Sobre
