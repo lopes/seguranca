@@ -2,7 +2,7 @@
 Este guia apresenta práticas de desenvolvimento seguro.  Cada tópico possui boas práticas de segurança pertinentes àquele assunto.  Além disso, para cada tópico há uma classe implementada no arquivo `seguranca.py`, com exemplos práticos.  O mais interessante a se notar é que, normalmente, é muito fácil implementar as boas práticas de segurança no código, o que deve servir como motivador para sua adoção.
 
 ### Dependências
-Pacotes no Ubuntu --os dois últimos são requisitos do pyopenssl: `python3`, `python-dev` e `libpq-dev`.
+Pacotes no [Ubuntu](http://www.ubuntu.com/) --os dois últimos são requisitos do pyopenssl: `python3`, `python-dev` e `libpq-dev`.
 
 Além deles, o arquivo `requirements.txt` tem a lista completa de dependências para execução do `seguranca.py`.
 
@@ -27,6 +27,7 @@ LDAP        Lightweight Directory Access Protocol
 LDAPS       Lightweight Directory Access Protocol Secure
 MD          Message Digest
 ORM         Object-relational Mapping
+PBKDF2      Password-Based Key Derivation Function 2
 RFC         Request for Comments
 RSA         Rivest, Shamir, Adleman
 SHA         Secure Hash
@@ -44,8 +45,8 @@ TLS         Transport Layer Security
 0. **NUNCA** crie seu sistema criptográfico: use aqueles já existentes.
 1. Entenda o que são as criptografias [simétrica](https://en.wikipedia.org/wiki/Symmetric-key_algorithm) e [assimétrica](https://en.wikipedia.org/wiki/Public-key_cryptography).
 2. Na criptografia simétrica, prefira usar o [AES](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard).
-3. Na criptografia assimétrica, prefira usar o [RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem)) ou algum baseado em ECC, como [ECDSA](https://wiki.openssl.org/index.php/Elliptic_Curve_Cryptography) ou [Ed25519](https://ed25519.cr.yp.to/).
-4. Entenda o que são *hashes* e *hashes* criptografados.
+3. Na criptografia assimétrica, prefira usar o [RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem)) ou algum baseado em [ECC](https://en.wikipedia.org/wiki/Elliptic_curve_cryptography), como [ECDSA](https://wiki.openssl.org/index.php/Elliptic_Curve_Cryptography) ou [Ed25519](https://ed25519.cr.yp.to/).
+4. Entenda o que são [*hashes*](https://en.wikipedia.org/wiki/Hash_function) e [*hashes* autenticados](https://en.wikipedia.org/wiki/Hash-based_message_authentication_code).
 5. Prefira usar o algoritmo de *hash* [SHA-2](https://en.wikipedia.org/wiki/SHA-2) --*digest* &gt;= 256 bits-- em vez do [MD5](https://en.wikipedia.org/wiki/MD5#Overview_of_security_issues) ou [SHA-1](https://en.wikipedia.org/wiki/SHA-1#Attacks).
 6. Nas cifras de bloco, prefira os modos [CBC](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Cipher_Block_Chaining_.28CBC.29) ou [CTR](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Counter_.28CTR.29) em vez do [ECB](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Electronic_Codebook_.28ECB.29).
 7. Entenda que criptografia é diferente de codificação.
@@ -73,11 +74,11 @@ A classe `Criptografia` implementa exemplos pertinentes a este tópico.  Veja co
 ## 1. Senhas
 1. Não limite o conjunto de caracteres das senhas.
 2. Permita senhas realmente longas --e.g., 160 caracteres.
-3. Proteja as senhas antes de armazená-las --e.g., usando *salt*.
-4. Considere usar hashes criptográfados na proteção da senha.
-5. Trate os *salts* e as credenciais de hash como chaves privadas.
-6. Crie parâmetros mínimos de senha --e.g., 12 caracteres, com letras minúsculas, maiúsculas, números e não-alfanuméricos.
-7. Use algoritmos de hash cujo processamento possa ser configurado, pois eles tendem a ser mais seguros para essa finalidade --e.g., PBKDF2 e Argon2.
+3. Proteja as senhas antes de armazená-las --e.g., usando [*salt*](https://en.wikipedia.org/wiki/Salt_(cryptography)).
+4. Considere usar *hashes* criptográfados na proteção da senha.
+5. Trate os *salts* e as credenciais de *hashes* autenticados como chaves privadas.
+6. Crie parâmetros mínimos de senha --e.g., 12 caracteres, com letras minúsculas `[a-z]`, maiúsculas `[A-Z]`, números `[0-9]` e não-alfanuméricos `[!@#$%~^...]`.
+7. Use algoritmos de *hash* cujo tempo de processamento possa ser configurado, pois eles tendem a ser mais seguros para essa finalidade --e.g., [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2) e [Argon2](https://en.wikipedia.org/wiki/Argon2).
 
 ### 1.1. Exemplos
 Exemplos deste tópico são implementados na classe `Senhas`.  Pode ser usada da seguinte forma:
@@ -96,8 +97,11 @@ Exemplos deste tópico são implementados na classe `Senhas`.  Pode ser usada da
 1. Sempre faça autenticação negativa: variáveis que permitirão a entrada devem ser inicializadas como *False*.
 2. Prefira usar sistemas de autenticação existentes em vez de criar um novo --e.g., LDAP, AD e OAuth.
 3. Mensagens de erro de autenticação devem informar o problema sem expor dados sensíveis, como nomes de usuário e versões de software.
-4. Sempre que possível, implemente o duplo fator de autenticação --RFCs 4226 ou 6238.
+4. Sempre que possível, implemente o duplo fator de autenticação --RFCs [4226](https://www.ietf.org/rfc/rfc4226.txt) ou [6238](https://www.ietf.org/rfc/rfc6238.txt).
 5. Atenção ao usar certificados digitais para autenticação: um sistema que use essa técnica deve abrir o certificado, baixar a CRL relacionada, verificar se o certificado em questão está lá, verificar  a cadeia de emissão do certificado, obter o identificador do usuário gravado no certificado, verificar se aquele identificador está permitido a acessar o sistema e, só então, permitir o acesso.
+
+### 2.1. Exemplos
+Exemplos implementados na classe `Autenticacao`.  Uso:
 
 ```python
 >>> from seguranca import Autenticacao
@@ -114,9 +118,12 @@ Exemplos deste tópico são implementados na classe `Senhas`.  Pode ser usada da
 2. Trate com atenção caracteres especiais, como aspas simples e duplas.
 3. Preste atenção aos *ranges* nos campos da sua aplicação --e.g., um campo para CPF não deveria permitir o envio de 1024 caracteres.
 4. Em aplicações web, validações no lado cliente devem ser refeitas no servidor.
-5. Parametrize consultas SQL, use um ORM ou estude a utilização de *stored procedures*.
-6. Considere como dados de entrada cabeçalhos HTTP, parâmetros GET/POST, cookies e arquivos, por exemplo.
-7. Atenção aos cookies: evite armazenar dados sensíveis neles e defina uma data de expiração da sessão.
+5. Parametrize consultas SQL, use um [ORM](https://en.wikipedia.org/wiki/Object-relational_mapping) ou estude a utilização de [*stored procedures*](https://en.wikipedia.org/wiki/Stored_procedure).
+6. Considere como dados de entrada: cabeçalhos HTTP, parâmetros GET/POST, *cookies* e arquivos, por exemplo.
+7. Atenção aos *cookies*: evite armazenar dados sensíveis neles e defina uma data de expiração da sessão.
+
+### 3.1. Exemplos
+A classe `Validacao` implementa exemplos desse tópico.  Uso:
 
 ```python
 >>> from seguranca import Validacao
@@ -147,6 +154,9 @@ Exemplos deste tópico são implementados na classe `Senhas`.  Pode ser usada da
 8. Prefira armazenar datas de logs com o fuso GMT+0, ajustando o fuso apenas na apresentação para o auditor.
 9. Para facilitar futuras pesquisas, defina níveis de log padrões para sua aplicação --e.g., *debug*, *info*, *warning*, *error e *critical*.
 
+### 5.1. Exemplos
+Exemplos de uso --classe `Logs`:
+
 ```python
 >>> from seguranca import Logs
 >>> u = input('Nome de usuário: ')
@@ -167,6 +177,9 @@ Nome de usuário: cemig
 5. Certificados *wildcard* devem receber atenção especial: o ideal é que seu 'instalador' seja restrito a poucas pessoas e servidores; o uso ideal dele seria em um proxy reverso, fechando conexões seguras com clientes e esse proxy fechando conexões seguras com os servidores usando outros certificados.
 6. Revogue o certificado a qualquer evidência de comprometimento do mesmo --lembre-se que, em posse dele, qualquer pessoa pode decriptografar informações, forjar serviços 'seguros' ou assinar documentos como o dono do certificado.
 
+### 6.1. Exemplos
+A classe `CertificadosDigitais` tem alguns exemplos de uso e pode ser usada como neste exemplo:
+
 ```python
 >>> from seguranca import CertificadosDigitais
 >>> c = CertificadosDigitais()
@@ -178,7 +191,7 @@ Nome de usuário: cemig
 ## 7. Segregação de Funções
 1. Crie contas administrativas separadas das de usuários comuns.
 2. Restrinja o acesso de contas administrativas em redes ou endereços IP específicos.
-3. Aumente o nível de segurança para contas administrativas --e.g., senhas realmente longas (> 40 caracteres), duplo fator de autenticação e, possivelmente, com certificado digital (token ou smart card).
+3. Aumente o nível de segurança para contas administrativas --e.g., senhas realmente longas (&gt; 40 caracteres), duplo fator de autenticação e, possivelmente, com certificado digital (token ou *smart card*).
 4. Mantenha o princípio do menor privilégio, i.e., o usuário deve possuir permissões mínimas para realizar seu trabalho e a aplicação deve garantir que isso possa ser configurado.
 5. Crie usuários específicos para executar tarefas da aplicação --e.g., banco de dados e sistema operacional.
 
@@ -191,6 +204,9 @@ Nome de usuário: cemig
 4. Preveja um cenário de migração do serviço para outro provedor ou até para servidores internos; procure saber como o provedor a ser contratado trata essa possibilidade.
 5. Avalie os riscos de expor as informações na nuvem; essa avaliação deve levar em consideração a classificação das informações que serão enviadas para o provedor contratado.
 6. Considere fortemente as práticas do item 4, Transferências, ao trafegar dados locais para a nuvem e vice-versa.
+
+### 8.1. Exemplos
+Exemplos na classe `Nuvem`.  Uso:
 
 ```python
 >>> from seguranca import Nuvem

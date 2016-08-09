@@ -2,11 +2,9 @@
 # padrão da linguagem e módulos bem conhecidos, obtidos de
 # fontes confiáveis.
 from hashlib import pbkdf2_hmac
-from base64 import b64encode, b64decode
 from binascii import hexlify, unhexlify
 
 import nacl.utils
-
 from Crypto import Random
 from Crypto.Cipher import AES
 from Crypto.Hash import HMAC, SHA256
@@ -70,7 +68,7 @@ class Criptografia(object):
             100000, SecretBox.KEY_SIZE)
         vi = Random.new().read(AES.block_size)
         cifra = AES.new(chave, AES.MODE_CBC, vi)
-        return b64encode(vi + cifra.encrypt(self.pad(msg))).decode()
+        return hexlify(vi + cifra.encrypt(self.pad(msg))).decode()
 
     def pycrypto_dec(self, cifrada, chave):
         """
@@ -83,7 +81,7 @@ class Criptografia(object):
         """
         chave = pbkdf2_hmac('sha256', chave.encode('utf8'), self.pynacl_sal,
             100000, SecretBox.KEY_SIZE)
-        cifrada = b64decode(cifrada)
+        cifrada = unhexlify(cifrada)
         vi = cifrada[:16]
         cifra = AES.new(chave, AES.MODE_CBC, vi)
         return self.unpad(cifra.decrypt(cifrada[16:])).decode('utf8')
