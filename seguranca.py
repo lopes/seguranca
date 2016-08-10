@@ -2,13 +2,14 @@
 # padrão da linguagem e módulos bem conhecidos, obtidos de
 # fontes confiáveis.
 from hashlib import pbkdf2_hmac
-from binascii import hexlify, unhexlify
+from base64 import b64encode, b64decode
 
 import nacl.utils
 from Crypto import Random
 from Crypto.Cipher import AES
 from Crypto.Hash import HMAC, SHA256
 from nacl.secret import SecretBox
+from argon2 import PasswordHasher
 from otpauth import OtpAuth
 from logging import basicConfig, warning
 from OpenSSL.crypto import load_pkcs12, dump_certificate, FILETYPE_TEXT
@@ -68,7 +69,7 @@ class Criptografia(object):
             100000, SecretBox.KEY_SIZE)
         vi = Random.new().read(AES.block_size)
         cifra = AES.new(chave, AES.MODE_CBC, vi)
-        return hexlify(vi + cifra.encrypt(self.pad(msg))).decode()
+        return b64encode(vi + cifra.encrypt(self.pad(msg))).decode()
 
     def pycrypto_dec(self, cifrada, chave):
         """
@@ -81,7 +82,7 @@ class Criptografia(object):
         """
         chave = pbkdf2_hmac('sha256', chave.encode('utf8'), self.pynacl_sal,
             100000, SecretBox.KEY_SIZE)
-        cifrada = unhexlify(cifrada)
+        cifrada = b64decode(cifrada)
         vi = cifrada[:16]
         cifra = AES.new(chave, AES.MODE_CBC, vi)
         return self.unpad(cifra.decrypt(cifrada[16:])).decode('utf8')
@@ -98,7 +99,7 @@ class Criptografia(object):
         chave = pbkdf2_hmac('sha256', chave.encode('utf8'), self.pynacl_sal,
             100000, SecretBox.KEY_SIZE)
         nonce = nacl.utils.random(SecretBox.NONCE_SIZE)
-        return hexlify(SecretBox(chave).encrypt(msg.encode('utf8'),
+        return b64encode(SecretBox(chave).encrypt(msg.encode('utf8'),
             nonce)).decode()
 
     def pynacl_dec(self, cifrada, chave):
@@ -112,7 +113,7 @@ class Criptografia(object):
         """
         chave = pbkdf2_hmac('sha256', chave.encode('utf8'), self.pynacl_sal,
             100000, SecretBox.KEY_SIZE)
-        cifrada = unhexlify(cifrada.encode('utf8'))
+        cifrada = b64decode(cifrada.encode('utf8'))
         return SecretBox(chave).decrypt(cifrada).decode()
 
 
@@ -147,9 +148,32 @@ class Senhas(object):
         - iter (integer): quantidade de iterações --o manual
             (hashlib.pbkdf2()), de 2013, recomenda, no mínimo, 100000.
 
+        NOTA
+        Em ambientes de produção, o parâmetro de iterações do PBKDF2 pode ser
+        alterado, para garantir mais segurança --o manual da biblioteca usada
+        aqui sugere valores maiores que 100000 (cem mil).
+
         """
-        return hexlify(pbkdf2_hmac('sha256', senha.encode('utf8'),
+        return b64encode(pbkdf2_hmac('sha256', senha.encode('utf8'),
             sal.encode('utf8'), iter)).decode('utf8')
+
+    def protege_senha_argon2(self, senha):
+        """
+        O Argon2 foi vencedor da edição 2015 da 'Password Hashing Competition'
+        <https://password-hashing.net> e é indicado por muitos especialistas
+        como a melhor solução para hash de senhas.
+
+        ARGS:
+        - senha (string): senha digitada pelo usuário.
+
+        NOTAS
+        1. O resultado de um hash Argon2 informa os parâmetros usados para
+            obter aquele hash, além do próprio hash.
+        2. Em ambientes de produção, esses parâmetros podem ser melhor
+            configurados, como o tempo e a memória utilizados.
+
+        """
+        return PasswordHasher().hash(senha)
 
 
 class Autenticacao(object):
@@ -174,27 +198,27 @@ class Autenticacao(object):
 
 
 class Validacao(object):
-    def codificahex(self, entrada):
+    def codifica_b64(self, entrada):
         """
-        Codifica a entrada do usuário em hexadecimal, para armazenagem segura.
+        Codifica a entrada do usuário em Base 64, para armazenagem segura.
         Retorna uma string com a representação hexadecimal da entrada.
 
         ARGS:
         - entrada (string): a string informada pelo usuário.
 
         """
-        return hexlify(entrada.encode()).decode()
+        return b64encode(entrada.encode()).decode()
 
-    def decodificahex(self, codificados):
+    def decodifica_b64(self, codificados):
         """
         Decodifica um dado que foi armazenado de forma codificada.  Retorna
         uma string com os dados decodificados.
 
         PARÂMETROS
-        - codificados (string): string na sua representação hexadecimal.
+        - codificados (string): string na sua representação Base 64.
 
         """
-        return unhexlify(codificados.encode()).decode()
+        return b64decode(codificados.encode()).decode()
 
 
 class Transferencias(object):
@@ -267,7 +291,7 @@ class Nuvem(object):
             aberto um navegador, para que o usuário acesse sua conta no Google
             e dê permissões de acesso a esta aplicação.
 
-        PARÂMETROS
+        ARGS:
         - path (string): caminho do arquivo a ser 'subido' para o Google Drive.
 
         """
