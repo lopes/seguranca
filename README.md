@@ -4,7 +4,7 @@ Este guia apresenta práticas de desenvolvimento seguro.  Cada tópico possui bo
 O guia é dividido em vários tópicos, cada um tratando de um assunto específico, que agrega as suas boas práticas.  Cada prática utiliza um verbo que indica a ação esperada do programador, como 'use', 'implemente' ou '[nunca] faça'.  Dado o grau de abstração deste guia, ele deve se encaixar em vários projetos e linguagens de programação, mas precisa ser adaptado a cada situação, i.e., poderá haver situações onde o programador precisará usar senhas curtas ou usar SMB para transferir arquivos.  Entretanto, casos específicos devem ser tratados como aquilo que são --exceções-- e, **principalmente**, [para quebrar regras, deve-se dominá-las primeiro](https://c1.staticflickr.com/9/8550/8711954278_667f63b745_z.jpg).  Em todo caso, a não-adoção de uma boa prática deve ser documentada e seguida de medidas de mitigação dos riscos associados.
 
 ### Dependências
-Pacotes no [Ubuntu](http://www.ubuntu.com/) --os dois últimos são requisitos do pyopenssl: `python3`, `python-dev` e `libpq-dev`.
+Pacotes no [Ubuntu](http://www.ubuntu.com/) --os dois últimos são requisitos do pyopenssl: `python3`, `libffi-dev`, `python-dev` e `libpq-dev`.
 
 Além deles, o arquivo `requirements.txt` tem a lista completa de dependências para execução do `seguranca.py`.
 
@@ -254,7 +254,17 @@ Exemplos na classe `Nuvem`.  Uso:
 
 
 ## Sobre
-Criado por José Lopes de Oliveira Jr. e licenciado sob a GNU General Public License v3 ou posterior --leia o arquivo `LICENSE` para mais informações.
+Criado por José Lopes de Oliveira Jr. e licenciado sob a [GNU General Public License v3 ou posterior](https://github.com/forkd/seguranca/blob/master/LICENSE) --leia o arquivo `LICENSE` para mais informações.
+
+### Contribuições
+* Encontrou algum erro?
+* Quer sugerir outra prática ou outro tópico?
+* Quer relatar um caso de uso?
+* Pintou alguma dúvida?
+
+Entre em contato: `joselopes (a) cemig.com.br` **ou** submeta um *pull request*  **ou** abra uma nova *issue* aqui.
+
+*Apenas a mudança é permanente.*
 
 ### Agradecimentos
 * [Cemig](http://www.cemig.com.br)
