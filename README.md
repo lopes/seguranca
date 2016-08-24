@@ -11,7 +11,6 @@ Além deles, o arquivo `requirements.txt` tem a lista completa de dependências 
 
 ## Lista de Abreviaturas
 ```
-AD          Active Directory
 AES         Advanced Encryption Standard
 API         Application Programming Interface
 CBC         Cipher Block Chaining
@@ -96,12 +95,13 @@ Exemplos deste tópico são implementados na classe `Senhas`, que pode ser usada
 ```
 
 
-## 2. Autenticação
+## 2. Autenticação e Autorização
 1. Sempre faça autenticação negativa: variáveis que permitirão a entrada no sistema devem ser inicializadas para negar o acesso --cabe ao usuário provar que ele pode entrar.
-2. Prefira usar sistemas de autenticação existentes em vez de criar um novo --e.g., LDAP, AD e OAuth.
+2. Prefira usar sistemas de autenticação existentes em vez de criar um novo --e.g., [LDAP](https://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol) e [OAuth](https://oauth.net/).
 3. Mensagens de erro de autenticação devem informar o problema sem expor dados sensíveis, como nomes de usuário e versões de software.
 4. Sempre que possível, implemente o duplo fator de autenticação --RFCs [4226](https://www.ietf.org/rfc/rfc4226.txt) ou [6238](https://www.ietf.org/rfc/rfc6238.txt).
-5. Atenção ao usar certificados digitais para autenticação: um sistema que use essa técnica deve abrir o certificado, baixar a CRL relacionada, verificar se o certificado em questão está lá, verificar  a cadeia de emissão do certificado, determinar se a cadeia é acreditada no sistema, obter o identificador do usuário gravado no certificado, verificar se aquele identificador está permitido a acessar o sistema e, só então, permitir o acesso.
+5. Atenção ao usar certificados digitais para autenticação: um sistema que use essa técnica deveria abrir o certificado, baixar a CRL relacionada, verificar se o certificado em questão está lá, verificar  a cadeia de emissão do certificado, determinar se a cadeia é acreditada no sistema, obter o identificador do usuário gravado no certificado, verificar se aquele identificador está permitido a acessar o sistema e, só então, permitir o acesso.
+6. Estude a utilização de um método bem definido de acesso às informações dentro do programa, como [RBAC](https://en.wikipedia.org/wiki/Role-based_access_control), [DAC](https://en.wikipedia.org/wiki/Discretionary_access_control), [MAC](https://en.wikipedia.org/wiki/Mandatory_access_control) ou [ACL](https://en.wikipedia.org/wiki/Access_control_list).
 
 ### 2.1. Exemplos
 Exemplos implementados na classe `Autenticacao`.  Uso:
@@ -117,13 +117,12 @@ Exemplos implementados na classe `Autenticacao`.  Uso:
 
 
 ## 3. Validação
-1. Valide todos os dados de entrada adequadamente.
-2. Trate com atenção caracteres especiais, como aspas simples e duplas.
-3. Preste atenção aos *ranges* nos campos da sua aplicação --e.g., um campo para CPF não deveria permitir o envio de 1024 caracteres.
-4. Em aplicações web, validações no lado cliente devem ser refeitas no servidor.
-5. Parametrize consultas SQL, use um [ORM](https://en.wikipedia.org/wiki/Object-relational_mapping) ou estude a utilização de [*stored procedures*](https://en.wikipedia.org/wiki/Stored_procedure).
-6. Considere como dados de entrada: cabeçalhos HTTP, parâmetros GET/POST, *cookies* e arquivos, por exemplo.
-7. Atenção aos *cookies*: evite armazenar dados sensíveis neles e defina uma data de expiração da sessão.
+1. Valide todos os dados de entrada adequadamente, tratando com atenção caracteres especiais, como aspas simples e duplas.
+2. Limite os *ranges* nos campos de entrada de dados do programa --e.g., um campo para CPF não deveria permitir o envio de 1024 caracteres.
+3. Em aplicações web, validações no lado cliente devem ser refeitas no servidor.
+4. Parametrize consultas SQL, use um [ORM](https://en.wikipedia.org/wiki/Object-relational_mapping) ou utilize de [*stored procedures*](https://en.wikipedia.org/wiki/Stored_procedure).
+5. Considere como dados de entrada: cabeçalhos HTTP, parâmetros para métodos [GET/POST](http://www.w3schools.com/tags/ref_httpmethods.asp), [*cookies*](https://en.wikipedia.org/wiki/HTTP_cookie) e arquivos, por exemplo.
+6. Atenção aos *cookies*: evite armazenar dados sensíveis neles, como senhas, e defina datas para expiração das sessões.
 
 ### 3.1. Exemplos
 A classe `Validacao` implementa exemplos desse tópico.  Uso:
@@ -139,32 +138,32 @@ A classe `Validacao` implementa exemplos desse tópico.  Uso:
 
 
 ## 4. Transferências
-1. Em aplicações web, use HTTPS em vez do HTTP.
-2. Prefira transferir arquivos via SSH; evite FTP ou SMB.
-3. No servidor, desabilite versões inseguras de protocolos de criptografia --e.g., SSLv2 e SSLv3.
+1. Em aplicações web, use [HTTPS](https://en.wikipedia.org/wiki/HTTPS) em vez do [HTTP](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol).
+2. Prefira transferir arquivos via [SSH](https://en.wikipedia.org/wiki/Secure_Shell); evite [FTP](https://en.wikipedia.org/wiki/File_Transfer_Protocol) ou [SMB](https://en.wikipedia.org/wiki/Server_Message_Block).
+3. No servidor, [desabilite](http://disablessl3.com/) versões inseguras de protocolos de criptografia --e.g., SSLv2 e SSLv3.
 4. Crie senhas fortes para cada serviço e evite compartilhá-las entre eles.
-5. Considere criptografar todas as conexões que forem feitas pela aplicação --e.g., LDAP over TLS/SSL (LDAPS) e SNMPv3.
+5. Considere criptografar todas as conexões que forem feitas pela aplicação --e.g., HTTPS, LDAP over TLS/SSL (LDAPS) e SNMPv3.
 
 
 ## 5. Logs
 1. Defina informações importantes que precisam ser armazenadas para fins de auditoria.
 2. Considere usar bibliotecas específicas para a geração de logs.
-3. Estruture os logs de acordo com algum padrão; evite criar novos --e.g., syslog-ng e ISO 8601 para datas.
-4. Projete seu sistema de logs considerando que ele eventualmente será exportado para um SIEM.
+3. Estruture os logs de acordo com algum padrão; evite criar novos --e.g., [syslog-ng](https://en.wikipedia.org/wiki/Syslog-ng) e [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) para datas.
+4. Projete seu sistema de logs considerando que ele eventualmente será exportado para um [SIEM](https://en.wikipedia.org/wiki/Security_information_and_event_management).
 5. **NUNCA** exponha informações sensíveis em logs --e.g., senhas.
-6. Lembre-se que haverá geração de logs em várias camadas; não reinvente a roda --e.g., uma aplicação web poderia guardar somente o que e quando o usuário fez determinada coisa no programa, pois endereços IP e falhas de login estariam nos logs do servidor web ou do sistema operacional.
-7. Mantenha o tempo dos servidores atualizados de acordo com um serviço confiável e único dentro do domínio, para manter o padrão --e.g., ntp.br.
+6. Defina os logs de forma que sejam facilmente integráveis com outros sistemas --e.g., gravar o endereço IP/MAC usado pelo usuário para entrar no programa, as ações realizadas pela conta durante a sessão e quando foi feito o *logout*; mais informações poderiam ser obtidas com o cruzamento de dados com outros sistemas de log.
+7. Mantenha o tempo dos servidores atualizados de acordo com um serviço confiável e único dentro do domínio, para manter o padrão nos logs --e.g., [NTP.br](http://ntp.br).
 8. Prefira armazenar datas de logs com o fuso GMT+0, ajustando o fuso apenas na apresentação para o auditor.
-9. Para facilitar futuras pesquisas, defina níveis de log padrões para sua aplicação --e.g., *debug*, *info*, *warning*, *error e *critical*.
+9. Para facilitar futuras pesquisas, defina níveis de log padrões para a aplicação --e.g., *debug*, *info*, *warning*, *error* e *critical*.
 
 ### 5.1. Exemplos
 Exemplos de uso --classe `Logs`:
 
 ```python
 >>> from seguranca import Logs
+>>> l = Logs()
 >>> u = input('Nome de usuário: ')
 Nome de usuário: cemig
->>> l = Logs()
 >>> l.log_aviso('usuário inválido: {}'.format(u))
 2016-08-09 11:03:00,586 WARNING: usuário inválido: cemig
 >>> print(l.tamanho_log(1000, 60))
@@ -179,6 +178,7 @@ Nome de usuário: cemig
 4. Evite usar um certificado para mais de uma finalidade.
 5. Certificados *wildcard* devem receber atenção especial: o ideal é que seu 'instalador' seja restrito a poucas pessoas e servidores; o uso ideal dele seria em um proxy reverso, fechando conexões seguras com clientes e esse proxy fechando conexões seguras com os servidores usando outros certificados.
 6. Revogue o certificado a qualquer evidência de comprometimento do mesmo --lembre-se que, em posse dele, qualquer pessoa pode decriptografar informações, forjar serviços 'seguros' ou assinar documentos como o dono do certificado.
+7. Defina políticas para gestão de cada tipo de certificados, como requisição, instalação, uso, renovação, revogação e descarte.
 
 ### 6.1. Exemplos
 A classe `CertificadosDigitais` tem alguns exemplos de uso e pode ser usada como neste exemplo:
@@ -194,9 +194,10 @@ A classe `CertificadosDigitais` tem alguns exemplos de uso e pode ser usada como
 ## 7. Segregação de Funções
 1. Crie contas administrativas separadas das de usuários comuns.
 2. Restrinja o acesso de contas administrativas em redes ou endereços IP específicos.
-3. Aumente o nível de segurança para contas administrativas --e.g., senhas realmente longas (&gt; 40 caracteres), duplo fator de autenticação e, possivelmente, com certificado digital (token ou *smart card*).
+3. Aumente o nível de segurança para contas administrativas --e.g., senhas realmente longas (&gt; 40 caracteres), duplo fator de autenticação e, possivelmente, com certificado digital (*token* ou *smart card*).
 4. Mantenha o princípio do menor privilégio, i.e., o usuário deve possuir permissões mínimas para realizar seu trabalho e a aplicação deve garantir que isso possa ser configurado.
 5. Crie usuários específicos para executar tarefas da aplicação --e.g., banco de dados e sistema operacional.
+6. Evite no sistema situações onde um usuário executar ações especiais e ele mesmo auditá-las --e.g., usuário executa a compra de um item e ele mesmo aprova a compra.
 
 
 ## 8. Nuvem
@@ -223,19 +224,19 @@ Exemplos na classe `Nuvem`.  Uso:
 1. Realize análises de vulnerabilidade periodicamente nas aplicações.
 2. Adicione uma etapa de análise de vulnerabilidades ao processo de desenvolvimento de software.
 3. Publique aplicações apenas após tratar todas as vulnerabilidades listadas nas análises.
-4. Lembre-se que é mais fácil tratar vulnerabilidades em ambientes de homologação do que de produção.
+4. Lembre-se que é mais fácil tratar vulnerabilidades em ambientes de homologação do que nos seus pares de produção.
 5. Separe fisica e logicamente os ambientes de homologação e produção.
 6. Crie ambientes de homologação o mais parecidos possível dos seus pares de produção.
+7. Proteja os ambientes de homologação com o mesmo nível dos de produção; caso eles tenham de ser expostos a partes não confiáveis, considere utilizar rotinas de mascaramento de dados --e.g., trocar números de CPF, embaralhar nomes e alterar endereços de email.
 
 
 ## 10. Outros
-1. Garanta que o sistema esteja alinhado com a legislação vigente do local onde for usado --e.g., [Marco Civil da Internet](https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2014/lei/l12965.htm).
+1. Garanta que o sistema esteja alinhado com a legislação local --e.g., [Marco Civil da Internet](https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2014/lei/l12965.htm) e [SOX](https://en.wikipedia.org/wiki/Sarbanes%E2%80%93Oxley_Act).
 2. Crie um processo formal para implantação de sistemas, que deverá garantir, entre outras coisas, que apenas os arquivos essenciais sejam colocados em produção --e.g., estruturas de controle de versão (e.g., diretórios .git) deveriam ser apagados.
 3. Mantenha uma rotina de atualização do software e suas dependências, como APIs e sistemas operacionais.
 4. Mantenha atualizada a documentação, seja ela qual for, da aplicação, pois em caso de problemas, ela será uma das primeiras fontes de consulta.
 5. Documente todas as mudanças no software, preferencialmente usando um sistema de controle de versões de código.
 6. Mudanças na infraestrutura deveriam ser documentadas, para facilitar o rastreio de problemas --e.g., atualização do servidor e entrada em produção de uma nova versão de determinado serviço.
-
 
 
 ## Notas
