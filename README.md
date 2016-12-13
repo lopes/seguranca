@@ -16,6 +16,7 @@ API         Application Programming Interface
 CBC         Cipher Block Chaining
 CRL         Certificate Revocation List --o mesmo que LCR
 CTR         Counter --modo de criptografia de bloco
+DAST        Dynamic Application Security Testing
 ECB         Electronic Codebook
 ECC         Elliptic Curve Cryptography
 ECDSA       Elliptic Curve Digital Signature Algorithm
@@ -23,14 +24,17 @@ FTP         File Transfer Protocol
 GMT         Greenwich Mean Time
 HTTP        Hypertext Transfer Protocol
 HTTPS       Hypertext Transfer Protocol Secure
+IAST        Interactive Application Security Testing
 LCR         Lista de Certificados Revogados
 LDAP        Lightweight Directory Access Protocol
 LDAPS       Lightweight Directory Access Protocol Secure
 MD          Message Digest
 ORM         Object-relational Mapping
 PBKDF2      Password-Based Key Derivation Function 2
+RASP        Runtime Application Self-protection
 RFC         Request for Comments
 RSA         Rivest, Shamir, Adleman
+SAST        Static Application Security Testing
 SHA         Secure Hash
 SIEM        Security Information and Event Management
 SMB         Server Message Block
@@ -224,10 +228,11 @@ Exemplos na classe `Nuvem`.  Uso:
 1. Realize análises de vulnerabilidade periodicamente nas aplicações.
 2. Adicione uma etapa de análise de vulnerabilidades ao processo de desenvolvimento de software.
 3. Publique aplicações apenas após tratar todas as vulnerabilidades listadas nas análises.
-4. Lembre-se que é mais fácil tratar vulnerabilidades em ambientes de homologação do que nos seus pares de produção.
+4. Lembre-se que é mais fácil tratar vulnerabilidades em ambientes de homologação do que nos pares de produção.
 5. Separe fisica e logicamente os ambientes de homologação e produção.
 6. Crie ambientes de homologação o mais parecidos possível dos seus pares de produção.
 7. Proteja os ambientes de homologação com o mesmo nível dos de produção; caso eles tenham de ser expostos a partes não confiáveis, considere utilizar rotinas de mascaramento de dados --e.g., trocar números de CPF, embaralhar nomes e alterar endereços de email.
+8. Considere o uso de alguma ferramenta de análise de código, seja [SAST](http://www.gartner.com/it-glossary/static-application-security-testing-sast/), [DAST](http://www.gartner.com/it-glossary/dynamic-application-security-testing-dast/), [IAST](http://blogs.gartner.com/neil_macdonald/2012/01/30/interactive-application-security-testing/) ou [RAST](http://www.gartner.com/it-glossary/runtime-application-self-protection-rasp/).
 
 
 ## 10. Outros
@@ -252,6 +257,7 @@ Exemplos na classe `Nuvem`.  Uso:
 6. Open Web Application Project (OWASP).  Secure Coding Principles.  Disponível em: [https://www.owasp.org/index.php/Secure_Coding_Principles](https://www.owasp.org/index.php/Secure_Coding_Principles).
 7. International Information System Security Certification Consortium (ISC)².  The Ten Best Practices for Secure Software Development.
 8. Hynek Schlawack.  Storing Passwords in a Highly Parallelized World.   [https://hynek.me/articles/storing-passwords](https://hynek.me/articles/storing-passwords)
+9. National Institute of Standards and Technology (NIST).  NISTIR 8151: Dramatically Reducing Software Vulnerabilities.  Disponível em: [https://doi.org/10.6028/NIST.IR.8151](https://doi.org/10.6028/NIST.IR.8151).
 
 
 ## Sobre
